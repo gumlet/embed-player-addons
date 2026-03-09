@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gumlet Modal Player</title>
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <h1 class="title">Gumlet Modal Player</h1>
+
+        <button
+          id="gumletThumb"
+          class="thumb"
+          type="button"
+          data-embed-src="https://play.gumlet.io/embed/6996fce5efbb2a28afa131de?background=false&autoplay=false&loop=false&disable_player_controls=false"
+          data-thumbnail=""
+          data-modal-bg="#f00"
+          aria-label="Play video"
+        >
+          <span class="thumb__overlay" aria-hidden="true"></span>
+          <span class="thumb__play" aria-hidden="true"></span>
+        </button>
+      </section>
+
+      <div id="modalRoot" class="modal" aria-hidden="true">
+        <div class="modal__backdrop" data-modal-close="true"></div>
+        <div class="modal__dialog" role="dialog" aria-modal="true" aria-label="Video player">
+          <button class="modal__close" type="button" aria-label="Close" data-modal-close="true">✕</button>
+          <div class="modal__player" id="modalPlayer"></div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
