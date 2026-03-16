@@ -63,7 +63,7 @@
 .gumlet-addon__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, var(--gumlet-backdrop-opacity, 0.72));
 }
 
 .gumlet-addon__dialog {
@@ -74,7 +74,7 @@
   width: min(95vw, 1200px);
   max-height: 90vh;
   aspect-ratio: 16 / 9;
-  background: var(--gumlet-modal-bg, transparent);
+  background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: var(--gumlet-shadow);

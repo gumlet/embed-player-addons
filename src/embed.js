@@ -10,13 +10,8 @@ function ensureStylesInjected() {
   document.head.appendChild(style);
 }
 
-function setBackgroundImage(el, url) {
-  el.style.backgroundImage = `url(${JSON.stringify(url).slice(1, -1)})`;
-}
-
 function buildEmbedSrc(embedSrc) {
   const url = new URL(embedSrc);
-  url.searchParams.set('autoplay', 'false');
   return url.toString();
 }
 
@@ -46,8 +41,7 @@ function mount(rootEl, options = {}) {
   ensureStylesInjected();
 
   const embedSrc = options.embedSrc ?? rootEl.dataset.embedSrc;
-  const thumbnail = options.thumbnail ?? rootEl.dataset.thumbnail;
-  const modalBg = options.modalBg ?? rootEl.dataset.modalBg;
+  const backdropOpacity = options.backdropOpacity ?? rootEl.dataset.backdropOpacity;
 
   if (!embedSrc) {
     throw new Error('[GumletAddon] Missing data-embed-src');
@@ -73,15 +67,16 @@ function mount(rootEl, options = {}) {
   preview.appendChild(previewFrame);
   preview.appendChild(overlay);
 
-  if (thumbnail && thumbnail.trim().length > 0) {
-    // Optional explicit thumbnail overrides the preview poster visually.
-    setBackgroundImage(preview, thumbnail.trim());
-    preview.classList.add('has-image');
-  }
-
   const modal = document.createElement('div');
   modal.className = 'gumlet-addon__modal';
   modal.setAttribute('aria-hidden', 'true');
+
+  if (backdropOpacity !== undefined && backdropOpacity !== null) {
+    const n = Number(backdropOpacity);
+    if (Number.isFinite(n)) {
+      modal.style.setProperty('--gumlet-backdrop-opacity', String(Math.min(1, Math.max(0, n))));
+    }
+  }
 
   const backdrop = document.createElement('div');
   backdrop.className = 'gumlet-addon__backdrop';
@@ -91,10 +86,6 @@ function mount(rootEl, options = {}) {
   dialog.setAttribute('role', 'dialog');
   dialog.setAttribute('aria-modal', 'true');
   dialog.setAttribute('aria-label', 'Video player');
-
-  if (typeof modalBg === 'string' && modalBg.trim().length > 0) {
-    dialog.style.setProperty('--gumlet-modal-bg', modalBg.trim());
-  }
 
   const close = document.createElement('button');
   close.className = 'gumlet-addon__close';
@@ -130,8 +121,9 @@ function mount(rootEl, options = {}) {
     ratio.appendChild(iframe);
     playerWrap.appendChild(ratio);
 
-    gumletPlayer = new playerjs.Player(iframe);
+    gumletPlayer = new playerjs.playerjs.Player(iframe);
     gumletPlayer.on('ready', async () => {
+      console.log('gumletPlayer ready');
       try {
         if (gumletPlayer.supports('method', 'play')) {
           await gumletPlayer.play();
@@ -140,8 +132,6 @@ function mount(rootEl, options = {}) {
         // Best-effort: browser autoplay policies may block sound.
       }
     });
-
-    close.focus();
   }
 
   function closeModal() {
