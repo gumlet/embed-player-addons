@@ -37,7 +37,7 @@ Host that file on your CDN and use the snippet below.
   data-embed-src="https://play.gumlet.io/embed/VIDEO_ID?background=false&loop=false&disable_player_controls=false"
 ></div>
 
-<script src="https://cdn.jsdelivr.net/gh/gumlet/gumlet-player-addons@v1.3.0/dist/gumlet-modal-player.min.js" async></script>
+<script src="https://cdn.jsdelivr.net/gh/gumlet/gumlet-player-addons@v1.3.1/dist/gumlet-modal-player.min.js" async></script>
 ```
 
 ## eCommerce (PIP) embed snippet
@@ -49,7 +49,7 @@ Host that file on your CDN and use the snippet below.
   data-corner="bottom-right"
 ></div>
 
-<script src="https://cdn.jsdelivr.net/gh/gumlet/gumlet-player-addons@v1.3.0/dist/gumlet-ecommerce-video.min.js" async></script>
+<script src="https://cdn.jsdelivr.net/gh/gumlet/gumlet-player-addons@v1.3.1/dist/gumlet-ecommerce-video.min.js" async></script>
 ```
 
 ## Configure

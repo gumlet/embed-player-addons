@@ -124,8 +124,6 @@ function mount(rootEl, options = {}) {
     gumletPlayer = new playerjs.playerjs.Player(iframe);
     gumletPlayer.on('ready', async () => {
       try {
-        if (gumletPlayer.supports('method', 'setVolume')) await gumletPlayer.setVolume(1);
-        if (gumletPlayer.supports('method', 'unmute')) await gumletPlayer.unmute();
         if (gumletPlayer.supports('method', 'play')) await gumletPlayer.play();
       } catch {
         // Best-effort: browser autoplay policies may block sound.
