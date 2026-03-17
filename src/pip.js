@@ -1,3 +1,4 @@
+import playerjs from '@gumlet/player.js';
 import cssText from './pip.css?inline';
 
 function ensureStylesInjected() {
@@ -9,17 +10,39 @@ function ensureStylesInjected() {
   document.head.appendChild(style);
 }
 
-function buildEmbedSrc(embedSrc) {
+function normalizeEnabledControls(value) {
+  if (value == null) return null;
+  if (value === true) return ['play'];
+  if (value === false) return [];
+  if (Array.isArray(value)) return value.map(String);
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  return null;
+}
+
+function buildEmbedSrc(embedSrc, { background, enabledPlayerControls } = {}) {
   const url = new URL(embedSrc);
-  url.searchParams.set('background', 'true');
+  if (background != null) url.searchParams.set('background', background ? 'true' : 'false');
+  if (enabledPlayerControls != null) {
+    const controls = normalizeEnabledControls(enabledPlayerControls);
+    const normalized = controls ? Array.from(new Set(controls)) : [];
+    url.searchParams.delete('enabled_player_control');
+    for (const control of normalized) {
+      url.searchParams.append('enabled_player_control', control);
+    }
+  }
   return url.toString();
 }
 
-function createIframe(embedSrc) {
+function createIframe(embedSrc, { background, enabledPlayerControls } = {}) {
   const iframe = document.createElement('iframe');
   iframe.loading = 'lazy';
   iframe.title = 'Gumlet video player';
-  iframe.src = buildEmbedSrc(embedSrc);
+  iframe.src = buildEmbedSrc(embedSrc, { background, enabledPlayerControls });
   iframe.referrerPolicy = 'origin';
   iframe.allow = 'accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;';
   iframe.style.border = 'none';
@@ -39,16 +62,7 @@ function parseAspectRatio(value) {
   return { w, h };
 }
 
-function parseBoolean(value) {
-  if (typeof value === 'boolean') return value;
-  if (typeof value !== 'string') return false;
-  const raw = value.trim().toLowerCase();
-  if (raw === 'true' || raw === '1' || raw === 'yes' || raw === 'on') return true;
-  return false;
-}
-
 function parseOptionalBoolean(value) {
-  console.log(value)
   if (typeof value === 'boolean') return { hasValue: true, value };
   if (typeof value !== 'string') return { hasValue: false, value: false };
   const raw = value.trim().toLowerCase();
@@ -94,17 +108,8 @@ function mount(rootEl, options = {}) {
   const aspectRatio = parseAspectRatio(aspectRatioRaw) ?? { w: 9, h: 16 };
 
   const persistVideoData = parseOptionalBoolean(rootEl.dataset.persistVideo);
-  const persistDismissData = parseOptionalBoolean(rootEl.dataset.persistDismiss);
-  let persistVideo = true;
-  if (options.persistVideo != null) {
-    persistVideo = options.persistVideo;
-  } else if (persistVideoData.hasValue) {
-    persistVideo = persistVideoData.value;
-  } else if (options.persistDismiss != null) {
-    persistVideo = !options.persistDismiss;
-  } else if (persistDismissData.hasValue) {
-    persistVideo = !persistDismissData.value;
-  }
+  const persistVideo =
+    options.persistVideo ?? (persistVideoData.hasValue ? persistVideoData.value : true);
   const dismissKey =
     options.dismissKey ?? rootEl.dataset.dismissKey ?? `gumlet-ecommerce-video:dismissed:${embedSrc ?? ''}`;
 
@@ -112,10 +117,7 @@ function mount(rootEl, options = {}) {
     throw new Error('[GumletEcommerceVideo] Missing data-embed-src');
   }
 
-  if (
-    (persistVideoData.hasValue && persistVideoData.value === true) ||
-    (persistDismissData.hasValue && persistDismissData.value === false)
-  ) {
+  if (persistVideoData.hasValue && persistVideoData.value === true) {
     safeStorageRemove(dismissKey);
   }
 
@@ -148,8 +150,60 @@ function mount(rootEl, options = {}) {
   const ratio = document.createElement('div');
   ratio.className = 'gumlet-ecommerce-video__ratio';
 
-  const iframe = createIframe(embedSrc);
-  ratio.appendChild(iframe);
+  let gumletPlayer = null;
+  let currentMode = 'compact';
+  let isReady = false;
+
+  function setMode(mode) {
+    currentMode = mode;
+    const expanded = mode === 'expanded';
+    pip.classList.toggle('is-expanded', expanded);
+
+    close.setAttribute('aria-label', expanded ? 'Minimize' : 'Close');
+    close.textContent = expanded ? '-' : '✕';
+
+    ratio.replaceChildren();
+
+    const iframe = createIframe(embedSrc, {
+      background: !expanded,
+      enabledPlayerControls: expanded ? ['play', 'mute', 'volume'] : null,
+    });
+    ratio.appendChild(iframe);
+
+    if (!expanded) {
+      const tapzone = document.createElement('div');
+      tapzone.className = 'gumlet-ecommerce-video__tapzone';
+      tapzone.setAttribute('role', 'button');
+      tapzone.setAttribute('tabindex', '0');
+      tapzone.setAttribute('aria-label', 'Expand video');
+      tapzone.addEventListener('click', () => setMode('expanded'));
+      ratio.appendChild(tapzone);
+    }
+
+    gumletPlayer = new playerjs.playerjs.Player(iframe);
+    isReady = false;
+
+    gumletPlayer.on('ready', async () => {
+      isReady = true;
+      try {
+        if (gumletPlayer.supports('method', 'play')) await gumletPlayer.play();
+      } catch {
+        // ignore
+      }
+
+      try {
+        if (!expanded) {
+          if (gumletPlayer.supports('method', 'mute')) await gumletPlayer.mute();
+        } else {
+          if (gumletPlayer.supports('method', 'unmute')) await gumletPlayer.unmute();
+        }
+      } catch {
+        // ignore
+      }
+    });
+  }
+
+  setMode('compact');
 
   pip.appendChild(close);
   pip.appendChild(ratio);
@@ -158,6 +212,11 @@ function mount(rootEl, options = {}) {
   rootEl.appendChild(pip);
 
   function onClose() {
+    if (currentMode === 'expanded') {
+      setMode('compact');
+      return;
+    }
+
     if (!persistVideo) safeStorageSet(dismissKey, '1');
     pip.remove();
   }

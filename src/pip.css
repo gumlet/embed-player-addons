@@ -15,6 +15,11 @@
   overflow: hidden;
   box-shadow: var(--gumlet-pip-shadow);
   background: rgba(0, 0, 0, 0.55);
+  transition: height 220ms ease;
+}
+
+.gumlet-ecommerce-video__pip.is-expanded {
+  height: min(480px, calc(100vw - 24px));
 }
 
 .gumlet-ecommerce-video__pip.is-bottom-right {
@@ -49,6 +54,13 @@
 .gumlet-ecommerce-video__ratio {
   position: absolute;
   inset: 0;
+}
+
+.gumlet-ecommerce-video__tapzone {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
 }
 
 .gumlet-ecommerce-video__ratio iframe {

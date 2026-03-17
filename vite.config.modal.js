@@ -9,6 +9,9 @@ export default defineConfig({
       fileName: () => 'gumlet-modal-player.min.js',
     },
     minify: 'esbuild',
+    esbuild: {
+      drop: ['console', 'debugger'],
+    },
     sourcemap: false,
     rollupOptions: {
       output: {

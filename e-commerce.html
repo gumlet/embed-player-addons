@@ -271,7 +271,7 @@
       }
     </style>
 
-    <script src="./dist/gumlet-ecommerce-video.min.js?v=12dsd" async></script>
+    <script src="./dist/gumlet-ecommerce-video.min.js" async></script>
   </head>
   <body>
     <main class="page">
@@ -438,7 +438,6 @@
         pipEl.dataset.corner = corner;
         pipEl.dataset.aspectRatio = aspectRatio;
         pipEl.dataset.persistVideo = persistVideo ? 'true' : 'false';
-        delete pipEl.dataset.persistDismiss;
 
         embedCodeEl.value = buildEmbedCode(embedSrc, corner, aspectRatio, persistVideo);
 

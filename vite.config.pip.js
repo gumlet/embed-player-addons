@@ -10,6 +10,9 @@ export default defineConfig({
       fileName: () => 'gumlet-ecommerce-video.min.js',
     },
     minify: 'esbuild',
+    esbuild: {
+      drop: ['console', 'debugger'],
+    },
     sourcemap: false,
     rollupOptions: {
       output: {
