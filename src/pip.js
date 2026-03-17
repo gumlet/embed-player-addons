@@ -160,7 +160,7 @@ function mount(rootEl, options = {}) {
     pip.classList.toggle('is-expanded', expanded);
 
     close.setAttribute('aria-label', expanded ? 'Minimize' : 'Close');
-    close.textContent = expanded ? '-' : '✕';
+    close.textContent = expanded ? '–' : '✕';
 
     ratio.replaceChildren();
 
