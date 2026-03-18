@@ -271,7 +271,7 @@
       }
     </style>
 
-    <script src="./dist/gumlet-ecommerce-video.min.js?v=s1" async></script>
+    <script src="./dist/gumlet-ecommerce-video.min.js" async></script>
   </head>
   <body>
     <main class="page">
@@ -405,6 +405,9 @@
         data-corner="bottom-right"
         data-aspect-ratio="2160:4096"
         data-persist-video="true"
+        data-expanded-title="Nice to meet you 👋"
+        data-expanded-button-text="Learn more"
+        data-expanded-button-href="https://www.gumlet.com?utm_source=ecommerce-demo&utm_medium=pip&utm_content=learn-more"
       ></div>
     </main>
 
@@ -535,7 +538,7 @@
         const scriptUrl =
           detectedScriptUrl && /^https?:\/\//i.test(detectedScriptUrl)
             ? detectedScriptUrl
-            : 'https://cdn.jsdelivr.net/gh/gumlet/gumlet-player-addons@v1.3.4/dist/gumlet-ecommerce-video.min.js';
+            : 'https://cdn.jsdelivr.net/gh/gumlet/gumlet-player-addons@v1.3.5/dist/gumlet-ecommerce-video.min.js';
         const closeScript = '</scr' + 'ipt>';
         const scriptLine = `<script src=\"${scriptUrl}\" async>${closeScript}`;
 
